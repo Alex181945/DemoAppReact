@@ -1,36 +1,21 @@
 import React, { useState, useEffect } from "react";
 import * as firebase from "firebase";
-import { View, Text } from "react-native";
+import Loading from "../../components/Loading";
+import UserGuest from "./UserGuest";
+import Home from "../Home";
 
 export default function MyAccount() {
   const [login, setLogin] = useState(null);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
-      console.log(user);
       !user ? setLogin(false) : setLogin(true);
     });
   }, []);
 
   if (login === null) {
-    return (
-      <View>
-        <Text>Cargando</Text>
-      </View>
-    );
+    return <Loading isVisible={true} text="Cargando..."></Loading>;
   }
 
-  if (login) {
-    return (
-      <View>
-        <Text>Sesión Iniciada</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View>
-      <Text>Sesión No Iniciada</Text>
-    </View>
-  );
+  return login ? <Home /> : <UserGuest />;
 }
