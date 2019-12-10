@@ -13,13 +13,13 @@ function UserGuest(props) {
         style={styles.image}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Inicia Sesión</Text>
+      <Text style={styles.title}>Pruébame</Text>
       <Text style={styles.description}>Descripción</Text>
       <View style={styles.viewBtn}>
         <Button
           buttonStyle={styles.buttonStyle}
           containerStyle={styles.btnContainer}
-          title="Registrarse"
+          title="Inicia Sesión"
           onPress={() => navigation.navigate("Login")}
         />
       </View>
