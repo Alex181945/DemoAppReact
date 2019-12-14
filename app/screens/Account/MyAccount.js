@@ -3,6 +3,7 @@ import * as firebase from "firebase";
 import Loading from "../../components/Loading";
 import UserGuest from "./UserGuest";
 import Home from "../Home";
+import UserLogged from "./UserLogged";
 
 export default function MyAccount() {
   const [login, setLogin] = useState(null);
@@ -17,5 +18,5 @@ export default function MyAccount() {
     return <Loading isVisible={true} text="Cargando..."></Loading>;
   }
 
-  return login ? <Home /> : <UserGuest />;
+  return login ? <UserLogged /> : <UserGuest />;
 }

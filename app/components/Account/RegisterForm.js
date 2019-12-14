@@ -1,10 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
+import Loading from "../Loading";
+import { withNavigation } from "react-navigation";
 
-export default function RegisterForm() {
-  const register = () => {
-    console.log("Registrado");
+import { validateEmail } from "../../utils/Validation";
+import * as firebase from "firebase";
+
+function RegisterForm(props) {
+  const { toastRef, navigation } = props;
+  const [hidePassword, setHidePassword] = useState(true);
+  const [hidePassword2, setHidePassword2] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [isVisibleLoading, setIsVisibleLoading] = useState(false);
+
+  const register = async () => {
+    let flag = false;
+    setIsVisibleLoading(true);
+    const resultEmailValidation = validateEmail(email);
+
+    if (!email || !password || !repeatPassword) {
+      toastRef.current.show("Todos los campos obligatorios");
+      flag = true;
+    } else {
+      if (!validateEmail(email)) {
+        toastRef.current.show("Email incorrecto");
+        flag = true;
+      }
+
+      if (password !== repeatPassword) {
+        toastRef.current.show("Las contraseñas no son iguales");
+        flag = true;
+      }
+
+      if (!flag) {
+        await firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            navigation.navigate("Account");
+            //toastRef.current.show("Usuario creado exitosamente");
+          })
+          .catch(() => {
+            toastRef.current.show("Error al momento de crear al usuario");
+          });
+      }
+    }
+
+    setIsVisibleLoading(false);
   };
 
   return (
@@ -12,7 +57,7 @@ export default function RegisterForm() {
       <Input
         placeholder="Correo Electronico"
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Registro")}
+        onChange={e => setEmail(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
@@ -25,14 +70,15 @@ export default function RegisterForm() {
       <Input
         placeholder="Contraseña"
         password={true}
-        secureTextEntry={true}
+        secureTextEntry={hidePassword}
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Contraseña")}
+        onChange={e => setPassword(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
-            name="eye-outline"
+            name={hidePassword ? "eye-outline" : "eye-off-outline"}
             iconStyle={styles.iconRigth}
+            onPress={() => setHidePassword(!hidePassword)}
           />
         }
       />
@@ -40,14 +86,15 @@ export default function RegisterForm() {
       <Input
         placeholder="Confirmar Contraseña"
         password={true}
-        secureTextEntry={true}
+        secureTextEntry={hidePassword2}
         containerStyle={styles.inputForm}
-        onChange={() => console.log("Contraseña")}
+        onChange={e => setRepeatPassword(e.nativeEvent.text)}
         rightIcon={
           <Icon
             type="material-community"
-            name="eye-outline"
+            name={hidePassword2 ? "eye-outline" : "eye-off-outline"}
             iconStyle={styles.iconRigth}
+            onPress={() => setHidePassword2(!hidePassword2)}
           />
         }
       />
@@ -58,9 +105,13 @@ export default function RegisterForm() {
         buttonStyle={styles.btnRegister}
         onPress={register}
       />
+
+      <Loading text="Creando cuenta" isVisible={isVisibleLoading} />
     </View>
   );
 }
+
+export default withNavigation(RegisterForm);
 
 const styles = StyleSheet.create({
   formContainer: {
